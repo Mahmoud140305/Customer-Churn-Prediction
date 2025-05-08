@@ -1,0 +1,185 @@
+/* static/css/style.css */
+
+body {
+    font-family: sans-serif;
+    margin: 20px;
+    background-color: #f4f4f4;
+    color: #333;
+    line-height: 1.6; /* Added for better readability */
+}
+
+.container {
+    max-width: 800px;
+    margin: auto;
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px; /* Added for spacing */
+}
+
+form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Responsive columns */
+    gap: 20px;
+}
+
+.form-section {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: #f9f9f9; /* Slightly different background for sections */
+}
+
+.form-section h3 {
+    margin-top: 0;
+    color: #555;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px; /* Increased padding */
+    margin-bottom: 15px; /* Spacing after heading */
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #444; /* Slightly darker label color */
+}
+
+input[type="text"],
+input[type="number"],
+select {
+    width: calc(100% - 22px); /* Account for padding and border */
+    padding: 10px;
+    margin-bottom: 15px; /* Increased spacing */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box; /* Ensures padding doesn't affect overall width */
+}
+
+input[type="submit"] {
+    background-color: #5cb85c;
+    color: white;
+    padding: 12px 20px; /* Slightly larger padding */
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100%;
+    grid-column: 1 / -1; /* Span across all columns in the grid */
+    margin-top: 10px;
+    transition: background-color 0.3s ease; /* Smooth transition on hover */
+}
+
+input[type="submit"]:hover {
+    background-color: #4cae4c;
+}
+
+.note {
+    font-size: 0.9em;
+    color: #777;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #e9ecef; /* Light background for note */
+    border-left: 3px solid #007bff; /* Accent border */
+    border-radius: 4px;
+    grid-column: 1 / -1; /* Span across all columns */
+}
+
+/* Styles for results.html (can be merged or kept separate) */
+.result {
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 1.2em;
+    text-align: center; /* Ensure text is centered if not already */
+}
+
+.result.churn {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.result.stay {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.probability {
+    font-size: 1em;
+    color: #555;
+    margin-bottom: 20px;
+    text-align: center; /* Ensure text is centered */
+}
+
+.container a, .container a:visited { /* Style for links within the container */
+    display: inline-block;
+    margin-top: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.container a:hover, .container a:active {
+    background-color: #0056b3;
+}
+
+.input-summary {
+    text-align: left;
+    margin-top: 30px;
+    font-size: 0.9em;
+    color: #666;
+}
+
+.input-summary h3 {
+    color: #444;
+    margin-bottom: 10px; /* Spacing for summary heading */
+}
+
+.input-summary pre {
+    background-color: #f0f0f0; /* Slightly different pre background */
+    padding: 10px;
+    border: 1px solid #ddd; /* Border for pre block */
+    border-radius: 4px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+/* Styles for error.html */
+.error-message {
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: 5px;
+    font-size: 1.1em;
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    text-align: left;
+}
+
+.error-message pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    background-color: #f1f1f1; /* Background for pre in error */
+    padding: 8px;
+    border-radius: 3px;
+    margin-top: 10px;
+}
+
+/* Centering for results and error pages if body style is different */
+.center-content-body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 90vh; /* Make sure it takes up most of the viewport height */
+}
