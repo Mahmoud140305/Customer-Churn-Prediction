@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Churn Prediction Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #2d3748; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #4a5568; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #718096; }
+        .dimmed { opacity: 0.5; }
+        .dimmed select, .dimmed input {
+            pointer-events: none; 
+            background-color: #4a5568 !important; 
+            cursor: not-allowed;
+        }
+        .dimmed select option { color: #a0aec0; }
+        .dimmed select { color: #a0aec0 !important; }
+        #live_total_revenue { transition: color 0.3s ease-in-out, transform 0.2s ease-in-out; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 to-slate-800 text-gray-100 min-h-screen flex flex-col items-center justify-center p-4 selection:bg-sky-500 selection:text-white">
+
+    <div class="bg-slate-800 shadow-2xl rounded-xl p-6 md:p-10 w-full max-w-4xl">
+        <header class="mb-8 text-center">
+            <h1 class="text-4xl font-bold text-sky-400">Customer Churn Predictor</h1>
+            <p class="text-slate-400 mt-2 text-lg">Enter customer details to predict churn probability.</p>
+        </header>
+
+        <form action="/predict" method="post" class="space-y-8">
+            
+            <div class="bg-slate-700/50 p-6 rounded-lg shadow-lg">
+                <h3 class="text-2xl font-semibold text-sky-300 mb-6 border-b border-slate-600 pb-3 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-sky-400"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                    Demographics
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                    <div>
+                        <label for="gender" class="block text-sm font-medium text-slate-300 mb-1">Gender</label>
+                        <select id="gender" name="gender" required class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500 placeholder-slate-400">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="age" class="block text-sm font-medium text-slate-300 mb-1">Age (Years)</label>
+                        <input type="number" id="age" name="age" min="18" max="120" required class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500 placeholder-slate-400" placeholder="e.g., 35">
+                    </div>
+                    <div>
+                        <label for="married" class="block text-sm font-medium text-slate-300 mb-1">Married</label>
+                        <select id="married" name="married" required class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500 placeholder-slate-400">
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="number_of_dependents" class="block text-sm font-medium text-slate-300 mb-1">Number of Dependents</label>
+                        <input type="number" id="number_of_dependents" name="number_of_dependents" min="0" value="0" required class="w-full revenue-input bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500 placeholder-slate-400" placeholder="e.g., 0">
+                    </div>
+                    </div>
+            </div>
+
+            <div class="bg-slate-700/50 p-6 rounded-lg shadow-lg">
+                <h3 class="text-2xl font-semibold text-sky-300 mb-6 border-b border-slate-600 pb-3 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-sky-400"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    Account Information
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
+                    <div>
+                        <label for="tenure_in_months" class="block text-sm font-medium text-slate-300 mb-1">Tenure (Months)</label>
+                        <input type="number" id="tenure_in_months" name="tenure_in_months" min="0" required class="w-full revenue-input bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500 placeholder-slate-400" placeholder="e.g., 12">
+                    </div>
+                    <div>
+                        <label for="offer" class="block text-sm font-medium text-slate-300 mb-1">Offer</label>
+                        <select id="offer" name="offer" required class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500 placeholder-slate-400">
+                            <option value="None">None</option><option value="Offer A">Offer A</option><option value="Offer B">Offer B</option><option value="Offer C">Offer C</option><option value="Offer D">Offer D</option><option value="Offer E">Offer E</option><option value="no_offer">No Offer</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="contract" class="block text-sm font-medium text-slate-300 mb-1">Contract</label>
+                        <select id="contract" name="contract" required class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500 placeholder-slate-400">
+                            <option value="Month-to-Month">Month-to-Month</option><option value="One Year">One Year</option><option value="Two Year">Two Year</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-slate-700/50 p-6 rounded-lg shadow-lg">
+                <h3 class="text-2xl font-semibold text-sky-300 mb-6 border-b border-slate-600 pb-3 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-sky-400"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+                    Services
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
+                    <div id="phone_service_container"> <label for="phone_service" class="block text-sm font-medium text-slate-300 mb-1">Phone Service</label>
+                        <select id="phone_service" name="phone_service" required class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500">
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    <div id="multiple_lines_container"> <label for="multiple_lines" class="block text-sm font-medium text-slate-300 mb-1">Multiple Lines</label>
+                        <select id="multiple_lines" name="multiple_lines" required class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500">
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                            <option value="No phone service" class="hidden">No phone service</option> </select>
+                    </div>
+                    <div id="internet_service_container"> <label for="internet_service" class="block text-sm font-medium text-slate-300 mb-1">Internet Service (Home)</label>
+                        <select id="internet_service" name="internet_service" required class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500">
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
+                    </div>
+                    
+                    <div class="home-internet-feature-wrapper"><label for="internet_type" class="block text-sm font-medium text-slate-300 mb-1">Internet Type</label><select id="internet_type" name="internet_type" class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500"><option value="">Select if Internet Service is Yes</option><option value="DSL">DSL</option><option value="Fiber Optic">Fiber Optic</option><option value="Cable">Cable</option><option value="no_internet_service" class="hidden">No Internet Service</option></select></div>
+                    <div class="home-internet-feature-wrapper"><label for="online_security" class="block text-sm font-medium text-slate-300 mb-1">Online Security</label><select id="online_security" name="online_security" class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500"><option value="">Select if Internet Service is Yes</option><option value="Yes">Yes</option><option value="No">No</option><option value="no_internet_service" class="hidden">No Internet Service</option></select></div>
+                    <div class="home-internet-feature-wrapper"><label for="online_backup" class="block text-sm font-medium text-slate-300 mb-1">Online Backup</label><select id="online_backup" name="online_backup" class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500"><option value="">Select if Internet Service is Yes</option><option value="Yes">Yes</option><option value="No">No</option><option value="no_internet_service" class="hidden">No Internet Service</option></select></div>
+                    <div class="home-internet-feature-wrapper"><label for="device_protection_plan" class="block text-sm font-medium text-slate-300 mb-1">Device Protection</label><select id="device_protection_plan" name="device_protection_plan" class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500"><option value="">Select if Internet Service is Yes</option><option value="Yes">Yes</option><option value="No">No</option><option value="no_internet_service" class="hidden">No Internet Service</option></select></div>
+                    <div class="home-internet-feature-wrapper"><label for="premium_tech_support" class="block text-sm font-medium text-slate-300 mb-1">Premium Tech Support</label><select id="premium_tech_support" name="premium_tech_support" class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500"><option value="">Select if Internet Service is Yes</option><option value="Yes">Yes</option><option value="No">No</option><option value="no_internet_service" class="hidden">No Internet Service</option></select></div>
+                    <div class="home-internet-feature-wrapper"><label for="streaming_tv" class="block text-sm font-medium text-slate-300 mb-1">Streaming TV</label><select id="streaming_tv" name="streaming_tv" class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500"><option value="">Select if Internet Service is Yes</option><option value="Yes">Yes</option><option value="No">No</option><option value="no_internet_service" class="hidden">No Internet Service</option></select></div>
+                    <div class="home-internet-feature-wrapper"><label for="streaming_movies" class="block text-sm font-medium text-slate-300 mb-1">Streaming Movies</label><select id="streaming_movies" name="streaming_movies" class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500"><option value="">Select if Internet Service is Yes</option><option value="Yes">Yes</option><option value="No">No</option><option value="no_internet_service" class="hidden">No Internet Service</option></select></div>
+                    <div class="home-internet-feature-wrapper"><label for="streaming_music" class="block text-sm font-medium text-slate-300 mb-1">Streaming Music</label><select id="streaming_music" name="streaming_music" class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500"><option value="">Select if Internet Service is Yes</option><option value="Yes">Yes</option><option value="No">No</option><option value="no_internet_service" class="hidden">No Internet Service</option></select></div>
+                    <div class="home-internet-feature-wrapper"><label for="unlimited_data" class="block text-sm font-medium text-slate-300 mb-1">Unlimited Data (Home)</label><select id="unlimited_data" name="unlimited_data" class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500"><option value="">Select if Internet Service is Yes</option><option value="Yes">Yes</option><option value="No">No</option><option value="no_internet_service" class="hidden">No Internet Service</option></select></div>
+                </div>
+            </div>
+
+            <div class="bg-slate-700/50 p-6 rounded-lg shadow-lg">
+                <h3 class="text-2xl font-semibold text-sky-300 mb-6 border-b border-slate-600 pb-3 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-3 text-sky-400"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                    Charges & Billing
+                </h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-x-6 gap-y-4">
+                    <div>
+                        <label for="avg_monthly_roaming_charges" class="block text-sm font-medium text-slate-300 mb-1">Average Monthly Roaming Charges ($)</label>
+                        <input type="number" step="0.01" id="avg_monthly_roaming_charges" name="avg_monthly_roaming_charges" min="0" value="0.00" required class="w-full revenue-input bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500 placeholder-slate-400" placeholder="e.g., 10.50">
+                    </div>
+                    <div class="home-internet-feature-wrapper">
+                        <label for="avg_monthly_gb_download" class="block text-sm font-medium text-slate-300 mb-1">Avg Monthly GB Download (Home)</label>
+                        <input type="number" id="avg_monthly_gb_download" name="avg_monthly_gb_download" min="0" value="0" class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500 placeholder-slate-400" placeholder="e.g., 50">
+                    </div>
+                    <div>
+                        <label for="monthly_charge" class="block text-sm font-medium text-slate-300 mb-1">Monthly Charge (Excl. Roaming) ($)</label>
+                        <input type="number" step="0.01" id="monthly_charge" name="monthly_charge" min="0" required class="w-full revenue-input bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500 placeholder-slate-400" placeholder="e.g., 70.00">
+                    </div>
+                    <div>
+                        <label for="total_extra_data_charges" class="block text-sm font-medium text-slate-300 mb-1">Total Extra Data Charges ($)</label>
+                        <input type="number" step="0.01" id="total_extra_data_charges" name="total_extra_data_charges" min="0" value="0.00" required class="w-full revenue-input bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500 placeholder-slate-400" placeholder="e.g., 0.00">
+                    </div>
+                    <div>
+                        <label for="total_refunds" class="block text-sm font-medium text-slate-300 mb-1">Total Refunds (Quarterly) ($)</label>
+                        <input type="number" step="0.01" id="total_refunds" name="total_refunds" min="0" value="0.00" required class="w-full revenue-input bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500 placeholder-slate-400" placeholder="e.g., 0.00">
+                    </div>
+                    
+                    <div><label for="paperless_billing" class="block text-sm font-medium text-slate-300 mb-1">Paperless Billing</label><select id="paperless_billing" name="paperless_billing" required class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500"><option value="Yes">Yes</option><option value="No">No</option></select></div>
+                    <div class="md:col-span-3"><label for="payment_method" class="block text-sm font-medium text-slate-300 mb-1">Payment Method</label><select id="payment_method" name="payment_method" required class="w-full bg-slate-700 border border-slate-600 text-gray-100 rounded-md shadow-sm py-2.5 px-3 focus:ring-sky-500 focus:border-sky-500"><option value="Bank Withdrawal">Bank Withdrawal</option><option value="Credit Card">Credit Card</option><option value="Mailed Check">Mailed Check</option></select></div>
+                
+                    <div class="md:col-span-3 mt-6 pt-6 border-t border-slate-700">
+                        <h4 class="text-lg font-semibold text-sky-300 mb-2 text-center">Live Calculated Total Revenue</h4>
+                        <p id="live_total_revenue" class="text-3xl font-bold text-green-400 text-center py-3 bg-slate-700/70 rounded-lg shadow-inner">$0.00</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-2">
+                <button type="submit" class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-lg text-lg font-semibold text-white bg-sky-500 hover:bg-sky-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 focus:ring-sky-500 transition duration-150 ease-in-out">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mr-2 h-5 w-5"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                    Predict Churn
+                </button>
+            </div>
+        </form>
+    </div>
+    <footer class="text-center text-slate-500 mt-12 pb-6">
+        <p>&copy; 2024-2025 AI Churn Predictor. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // --- Smart UI for Service Dependencies ---
+            const internetServiceSelect = document.getElementById('internet_service');
+            const homeInternetFeatureWrappers = document.querySelectorAll('.home-internet-feature-wrapper'); 
+            const phoneServiceSelect = document.getElementById('phone_service');
+            const multipleLinesContainer = document.getElementById('multiple_lines_container');
+            const multipleLinesSelect = document.getElementById('multiple_lines');
+            const defaultHomeInternetSubServiceValue = "No";
+
+            function toggleHomeInternetFeatures() {
+                const isInternetServiceActive = internetServiceSelect.value === 'Yes';
+                homeInternetFeatureWrappers.forEach(wrapper => {
+                    const inputsOrSelects = wrapper.querySelectorAll('input, select');
+                    if (isInternetServiceActive) {
+                        wrapper.classList.remove('dimmed');
+                        inputsOrSelects.forEach(el => {
+                            el.disabled = false;
+                            if (el.tagName === 'SELECT') {
+                                if (el.id === 'internet_type') el.value = el.dataset.previousValueType || 'DSL';
+                                else el.value = el.dataset.previousValueSub || defaultHomeInternetSubServiceValue;
+                            } else if (el.id === 'avg_monthly_gb_download') {
+                                el.value = el.dataset.previousValueGb || '10';
+                            }
+                        });
+                    } else { 
+                        wrapper.classList.add('dimmed');
+                        inputsOrSelects.forEach(el => {
+                            if (el.tagName === 'SELECT' && el.id === 'internet_type') el.dataset.previousValueType = el.value;
+                            else if (el.tagName === 'SELECT') el.dataset.previousValueSub = el.value;
+                            else if (el.id === 'avg_monthly_gb_download') el.dataset.previousValueGb = el.value;
+                            el.disabled = true;
+                            if (el.tagName === 'SELECT') {
+                                const noServiceOption = el.querySelector('option[value="no_internet_service"]');
+                                if (noServiceOption) el.value = noServiceOption.value; else el.value = '';
+                            } else if (el.id === 'avg_monthly_gb_download') el.value = '0';
+                            else el.value = '';
+                        });
+                    }
+                });
+                calculateLiveTotalRevenue(); // Recalculate when internet options change
+            }
+
+            function toggleMultipleLines() {
+                const isPhoneServiceActive = phoneServiceSelect.value === 'Yes';
+                if (isPhoneServiceActive) {
+                    multipleLinesContainer.classList.remove('dimmed');
+                    multipleLinesSelect.disabled = false;
+                    if (multipleLinesSelect.value === 'No phone service') multipleLinesSelect.value = 'No'; 
+                } else { 
+                    multipleLinesContainer.classList.add('dimmed');
+                    multipleLinesSelect.disabled = true;
+                    multipleLinesSelect.value = 'No phone service';
+                }
+            }
+            
+            // --- Live Total Revenue Calculation ---
+            const revenueInputs = document.querySelectorAll('.revenue-input'); // Add this class to relevant inputs
+            const liveTotalRevenueDisplay = document.getElementById('live_total_revenue');
+            
+            // Also listen to avg_monthly_roaming_charges as it affects total_roaming which affects total_revenue
+            const avgMonthlyRoamingInput = document.getElementById('avg_monthly_roaming_charges');
+
+
+            function calculateLiveTotalRevenue() {
+                const monthlyCharge = parseFloat(document.getElementById('monthly_charge').value) || 0;
+                const tenure = parseInt(document.getElementById('tenure_in_months').value) || 0;
+                const extraData = parseFloat(document.getElementById('total_extra_data_charges').value) || 0;
+                const refunds = parseFloat(document.getElementById('total_refunds').value) || 0;
+                const avgRoaming = parseFloat(avgMonthlyRoamingInput.value) || 0;
+
+                // Calculate derived Total Roaming Charges for live display
+                const derivedTotalRoamingCharges = avgRoaming * 3.2;
+
+                // Calculate live total revenue
+                // Formula: (monthly_charge * tenure) + total_extra_data_charges + DERIVED_total_roaming_charges - total_refunds
+                const totalRevenue = (monthlyCharge * tenure) + extraData + derivedTotalRoamingCharges - refunds;
+                
+                liveTotalRevenueDisplay.textContent = '$' + totalRevenue.toFixed(2);
+                // Optional: Change color based on value
+                if (totalRevenue < 0) {
+                    liveTotalRevenueDisplay.classList.remove('text-green-400', 'text-yellow-400');
+                    liveTotalRevenueDisplay.classList.add('text-red-400');
+                } else if (totalRevenue < 100 && totalRevenue >=0) {
+                    liveTotalRevenueDisplay.classList.remove('text-green-400', 'text-red-400');
+                    liveTotalRevenueDisplay.classList.add('text-yellow-400');
+                } else {
+                    liveTotalRevenueDisplay.classList.remove('text-red-400', 'text-yellow-400');
+                    liveTotalRevenueDisplay.classList.add('text-green-400');
+                }
+            }
+
+            // Add class 'revenue-input' to all fields that directly contribute to the formula
+            // (monthly_charge, tenure_in_months, total_extra_data_charges, total_refunds)
+            // avg_monthly_roaming_charges is handled separately as it first calculates derivedTotalRoamingCharges
+            document.getElementById('monthly_charge').classList.add('revenue-input');
+            document.getElementById('tenure_in_months').classList.add('revenue-input');
+            document.getElementById('total_extra_data_charges').classList.add('revenue-input');
+            document.getElementById('total_refunds').classList.add('revenue-input');
+            // Note: avg_monthly_roaming_charges is already an ID we get by avgMonthlyRoamingInput
+
+            const allRevenueInputs = document.querySelectorAll('.revenue-input'); // Re-query after adding class
+
+            allRevenueInputs.forEach(input => {
+                input.addEventListener('input', calculateLiveTotalRevenue);
+            });
+            avgMonthlyRoamingInput.addEventListener('input', calculateLiveTotalRevenue);
+
+
+            // Initial states and calculations
+            toggleHomeInternetFeatures(); // This will also call calculateLiveTotalRevenue
+            toggleMultipleLines();
+            calculateLiveTotalRevenue(); // Initial calculation on page load
+
+            // Event listeners for service toggles
+            internetServiceSelect.addEventListener('change', toggleHomeInternetFeatures);
+            phoneServiceSelect.addEventListener('change', toggleMultipleLines);
+        });
+    </script>
+
+</body>
+</html>
